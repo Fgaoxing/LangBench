@@ -1,3 +1,5 @@
+const std = @import("std");
+
 pub fn fib(n: u64) u64 {
     if (n <= 1) {
         return n;

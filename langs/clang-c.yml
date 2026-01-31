@@ -5,5 +5,5 @@ file_extension: ".c"
 setup_commands:
   - "sudo apt-get install -y --no-install-recommends clang"
 compile_command: "clang -O3 -o {output} {sources}"
-run_command: "./{output}"
+run_command: "{output}"
 version_command: "clang --version"
