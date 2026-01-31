@@ -68,7 +68,7 @@ class BenchmarkRunner:
         # 执行编译命令
         compile_cmd = lang_config['compile_command'].format(
             sources=' '.join(source_files),
-            output=output_file
+            output=str(output_file)
         )
 
         try:
@@ -115,7 +115,7 @@ class BenchmarkRunner:
             # 确定运行命令
             if output_file and lang_config.get('compile_command'):
                 # 编译型语言：运行可执行文件
-                run_cmd = lang_config['run_command'].format(output=output_file)
+                run_cmd = lang_config['run_command'].format(output=str(output_file))
             else:
                 # 解释型语言：直接运行源文件
                 if not source_file:

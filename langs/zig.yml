@@ -3,6 +3,6 @@ name: "Zig"
 platform: "linux"
 file_extension: ".zig"
 setup_commands:
-  - "sudo apt-get install -y --no-install-recommends zig"
+  - "sh -c \"if ! command -v zig &> /dev/null; then wget https://ziglang.org/download/0.13.0/zig-linux-x86_64-0.13.0.tar.xz -O /tmp/zig.tar.xz && tar -xf /tmp/zig.tar.xz -C /tmp && sudo mv /tmp/zig-linux-x86_64-0.13.0 /opt/zig && sudo ln -sf /opt/zig/zig /usr/local/bin/zig; fi\""
 run_command: "zig run {file_path}"
 version_command: "zig version"
