@@ -7,27 +7,35 @@ from pathlib import Path
 def generate_report(results_dir):
     results = []
     failed_results = []
-    for result_file in Path(results_dir).glob("*.json"):
+    # 递归查找所有 JSON 结果文件
+    for result_file in Path(results_dir).rglob("*.json"):
         with open(result_file, 'r') as f:
             data = json.load(f)
-            # 提取文件名信息：语言-套件-用例
-            parts = result_file.stem.split('-')
-            if len(parts) >= 3:
-                data['language'] = parts[0]
-                data['suite'] = parts[1]
-                data['test_case'] = '-'.join(parts[2:])
+            # 从文件名提取信息：raw-result-语言-套件/result.json
+            filename = result_file.name
+            parent_dir = result_file.parent.name
 
-                if data.get('success', False) and data.get('successful_runs', 0) > 0:
-                    results.append(data)
-                else:
-                    failed_results.append(data)
+            # 如果文件名是 result.json，从父目录提取信息
+            if filename == 'result.json':
+                parts = parent_dir.split('-')
+                if len(parts) >= 3:
+                    # 格式: raw-result-language-suite
+                    data['language'] = parts[2] if len(parts) > 2 else parts[0]
+                    data['suite'] = '-'.join(parts[3:]) if len(parts) > 3 else parts[1]
+                    data['test_case'] = data['suite']
+
+                    if data.get('success', False) and data.get('successful_runs', 0) > 0:
+                        results.append(data)
+                    else:
+                        failed_results.append(data)
 
     df = pd.DataFrame(results)
     failed_df = pd.DataFrame(failed_results)
 
-    # 生成对比图表（仅成功的数据）
-    generate_comparison_chart(df)
-    generate_trend_chart(df)
+    # 如果没有成功结果，跳过图表生成
+    if len(df) > 0:
+        generate_comparison_chart(df)
+        generate_trend_chart(df)
 
     # 生成Markdown表格
     generate_results_table(df, failed_df)
@@ -35,6 +43,9 @@ def generate_report(results_dir):
     return df
 
 def generate_comparison_chart(df):
+    if len(df) == 0:
+        return
+
     plt.figure(figsize=(12, 8))
 
     # 按测试用例分组，比较不同语言的性能
@@ -59,6 +70,9 @@ def generate_comparison_chart(df):
     plt.close()
 
 def generate_trend_chart(df):
+    if len(df) == 0:
+        return
+
     plt.figure(figsize=(12, 8))
 
     # 按语言分组，展示在不同测试用例上的性能趋势
