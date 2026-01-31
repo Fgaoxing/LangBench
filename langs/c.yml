@@ -3,8 +3,7 @@ name: "C"
 platform: "linux"
 file_extension: ".c"
 setup_commands:
-  - "sudo apt-get update"
-  - "sudo apt-get install -y gcc build-essential"  # 安装GCC工具链
+  - "sudo apt-get install -y gcc"
 compile_command: "gcc -O3 -o {output} {sources}"
 run_command: "./{output}"
 version_command: "gcc --version"

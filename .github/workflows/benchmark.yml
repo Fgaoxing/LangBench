@@ -33,6 +33,8 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
+      - name: 更新包列表
+        run: sudo apt-get update
       - name: 设置 ${{ matrix.language }} 环境
         run: |
           # 从语言配置中读取并执行安装命令

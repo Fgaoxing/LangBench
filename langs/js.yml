@@ -3,7 +3,6 @@ name: "JavaScript"
 platform: "linux"
 file_extension: ".js"
 setup_commands:
-  - "sudo apt-get update"
-  - "sudo apt-get install -y nodejs"
+  - "sudo apt-get install -y --no-install-recommends nodejs"
 run_command: "node {file_path}"
 version_command: "node --version"

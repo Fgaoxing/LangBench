@@ -3,7 +3,6 @@ name: "Go"
 platform: "linux"
 file_extension: ".go"
 setup_commands:
-  - "sudo apt-get update"
-  - "sudo apt-get install -y golang-go"
+  - "sudo apt-get install -y --no-install-recommends golang-go"
 run_command: "go run {file_path}"
 version_command: "go version"
