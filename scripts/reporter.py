@@ -4,6 +4,10 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from pathlib import Path
 
+# 配置中文字体
+plt.rcParams['font.sans-serif'] = ['SimHei', 'DejaVu Sans', 'WenQuanYi Micro Hei', 'Droid Sans Fallback']
+plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
+
 def format_time(seconds, decimals=4):
     """根据时间大小自动选择合适的单位"""
     if seconds >= 1:
