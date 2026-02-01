@@ -100,7 +100,7 @@ def generate_results_table(df, failed_df):
         f.write('# LangBench 测试报告\n\n')
 
         # 添加图表
-        if len(df) > 0:
+        if len(df) > 0 and 'test_case' in df.columns:
             f.write('## 性能图表\n\n')
             f.write('### 性能对比\n\n')
             f.write('![性能对比](report/comparison.png)\n\n')
@@ -108,7 +108,7 @@ def generate_results_table(df, failed_df):
             f.write('![性能趋势](report/trend.png)\n\n')
 
         # 按测试用例分组（仅成功的数据）
-        if len(df) > 0:
+        if len(df) > 0 and 'test_case' in df.columns:
             for test_case in df['test_case'].unique():
                 f.write(f'## {test_case}\n\n')
                 test_data = df[df['test_case'] == test_case]
@@ -137,38 +137,41 @@ def generate_results_table(df, failed_df):
             f.write('\n')
 
         # 失败测试报告
-        if len(failed_df) > 0 and 'test_case' in failed_df.columns and len(failed_df['test_case'].unique()) > 0:
-            f.write('## 失败测试详情\n\n')
+        if len(failed_df) > 0 and 'test_case' in failed_df.columns:
+            failed_test_cases = set(failed_df['test_case'].unique())
+            if len(failed_test_cases) > 0:
+                f.write('## 失败测试详情\n\n')
 
-            # 按测试用例分组失败结果
-            all_test_cases = set(df['test_case'].unique()) | set(failed_df['test_case'].unique())
+                # 按测试用例分组失败结果
+                df_test_cases = set(df['test_case'].unique()) if 'test_case' in df.columns else set()
+                all_test_cases = df_test_cases | failed_test_cases
 
-            for test_case in all_test_cases:
-                failed_test_data = failed_df[failed_df['test_case'] == test_case]
+                for test_case in all_test_cases:
+                    failed_test_data = failed_df[failed_df['test_case'] == test_case]
 
-                if len(failed_test_data) > 0:
-                    f.write(f'### {test_case} - 失败\n\n')
+                    if len(failed_test_data) > 0:
+                        f.write(f'### {test_case} - 失败\n\n')
 
-                    for _, row in failed_test_data.iterrows():
-                        language = row.get('language', 'unknown')
-                        error = row.get('error', 'unknown error')
-                        f.write(f"#### {language}\n")
-                        f.write(f"**错误信息**: `{error}`\n\n")
+                        for _, row in failed_test_data.iterrows():
+                            language = row.get('language', 'unknown')
+                            error = row.get('error', 'unknown error')
+                            f.write(f"#### {language}\n")
+                            f.write(f"**错误信息**: `{error}`\n\n")
 
-                        failures = row.get('failures')
-                        if isinstance(failures, list) and failures:
-                            f.write("**失败详情**:\n")
-                            f.write("```\n")
-                            for i, failure in enumerate(failures[:3], 1):
-                                f.write(f"尝试 {i}: {failure.get('error', 'unknown')}\n")
-                            f.write("```\n\n")
+                            failures = row.get('failures')
+                            if isinstance(failures, list) and failures:
+                                f.write("**失败详情**:\n")
+                                f.write("```\n")
+                                for i, failure in enumerate(failures[:3], 1):
+                                    f.write(f"尝试 {i}: {failure.get('error', 'unknown')}\n")
+                                f.write("```\n\n")
 
-                        if row.get('total_runs', 0) > 0 and row.get('successful_runs', 0) == 0:
-                            f.write(f"- 总运行次数: {row['total_runs']}\n")
-                            f.write(f"- 成功次数: 0\n")
-                            f.write(f"- 失败率: 100%\n\n")
+                            if row.get('total_runs', 0) > 0 and row.get('successful_runs', 0) == 0:
+                                f.write(f"- 总运行次数: {row['total_runs']}\n")
+                                f.write(f"- 成功次数: 0\n")
+                                f.write(f"- 失败率: 100%\n\n")
 
-                    f.write('---\n\n')
+                        f.write('---\n\n')
         else:
             f.write('## 失败测试\n\n')
             f.write('✅ 所有测试均通过！\n\n')
