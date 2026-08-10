@@ -8,5 +8,5 @@ setup_commands:
   - "ls /tmp/lamina"
   - "cmake -B build -DUSE_ASM=ON -DCMAKE_BUILD_TYPE=Release && cmake --build build --parallel"
   - "mv /tmp/lamina/build/ /opt/lamina/"
-run_command: "/opt/lamina/build/lamina {sources}"
+run_command: "/opt/lamina/build/lamina {file_path}"
 version_command: "echo undefined"
