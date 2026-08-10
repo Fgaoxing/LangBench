@@ -1,0 +1,16 @@
+static "laminaCore"
+
+func printf(fmt text, ...) -> int = "printf"
+
+func fib(n int) -> int {
+    if n <= 1 {
+        n
+    } else {
+        fib(n - 1) + fib(n - 2)
+    }
+}
+
+let n = 30
+let v = fib(n)
+
+printf("%lld\n", v)

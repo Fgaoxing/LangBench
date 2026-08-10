@@ -1,0 +1,10 @@
+# langs/lamina.yml
+name: "Lamina"
+platform: "linux"
+file_extension: ".lm"
+setup_commands:
+  - "sudo apt-get install -y cmake nasm build-essential git"
+  - "git clone https://github.com/geguj/Lamina1 /tmp/lamina && cd /tmp/lamina && cmake -B build -DUSE_ASM=ON -DCMAKE_BUILD_TYPE=Release && cmake --build build --parallel && sudo mkdir /opt/lamina && sudo mv ./build/lamina /opt/lamina/ && sudo mv ./build/**.so.** /opt/lamina/ && sudo ln -sf /opt/lamina/lamina /usr/local/bin/lamina"
+compile_command: "lamina {output} {sources}"
+run_command: "{output}"
+version_command: "echo undefined"
