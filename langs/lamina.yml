@@ -7,6 +7,6 @@ setup_commands:
   - "git clone https://github.com/geguj/Lamina1 /tmp/lamina && cd /tmp/lamina"
   - "ls /tmp/lamina"
   - "cmake -B build -DUSE_ASM=ON -DCMAKE_BUILD_TYPE=Release && cmake --build build --parallel"
-  - "mv -rf /tmp/lamina/build/ /opt/lamina/"
+  - "mv /tmp/lamina/build/ /opt/lamina/"
 run_command: "/opt/lamina/build/lamina {sources}"
 version_command: "echo undefined"
