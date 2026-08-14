@@ -1,0 +1,12 @@
+# langs/alum.yml
+name: "Alum"
+platform: "linux"
+file_extension: ".al"
+setup_commands:
+  - "sudo apt-get install -y --no-install-recommends rustc cargo"
+  - "git clone https://github.com/wayuto/Alum.git --depth 1"
+  - "cd Alum"
+  - "sh ./install.sh"
+compile_command: "alc -o {output} {sources}"
+run_command: "{output}"
+version_command: "alc -V"
