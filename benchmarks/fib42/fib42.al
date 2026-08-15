@@ -9,6 +9,5 @@ fun(pure) fib(n: int): int {
 
 fun main(): int {
     var n = fib(42);
-    println(f"{n}");
     return 0
 }

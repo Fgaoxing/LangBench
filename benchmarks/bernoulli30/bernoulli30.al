@@ -27,6 +27,5 @@ fun(pure) bernoulli(n: int): float {
 
 fun main(): int {
     var n = bernoulli(30)
-    println(f"{n}");
     return 0
 }
