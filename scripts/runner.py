@@ -223,7 +223,8 @@ class BenchmarkRunner:
             'min_time': min([r['execution_time'] for r in successful_runs]),
             'max_time': max([r['execution_time'] for r in successful_runs]),
             'std_dev_time': statistics.stdev([r['execution_time'] for r in successful_runs]) if len(successful_runs) > 1 else 0,
-            'average_memory': statistics.mean([r['memory_used'] for r in successful_runs])
+            'average_memory': statistics.mean([r['memory_used'] for r in successful_runs]),
+            'times': [r['execution_time'] for r in successful_runs]
         }
 
     def get_memory_usage(self):
