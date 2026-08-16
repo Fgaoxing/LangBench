@@ -5,7 +5,7 @@ import pandas as pd
 from pathlib import Path
 
 # 配置中文字体
-plt.rcParams['font.sans-serif'] = ['SimHei', 'DejaVu Sans', 'WenQuanYi Micro Hei', 'Droid Sans Fallback']
+plt.rcParams['font.sans-serif'] = ['Noto Sans CJK SC', 'WenQuanYi Micro Hei', 'SimHei', 'DejaVu Sans', 'Droid Sans Fallback']
 plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
 
 def format_time(seconds, decimals=4):
@@ -49,54 +49,66 @@ def generate_report(results_dir):
 
     return df
 
+def _language_colors(languages):
+    cmap = plt.cm.tab20
+    return {lang: cmap(i % 20) for i, lang in enumerate(sorted(languages))}
+
 def generate_comparison_chart(df):
-    if len(df) == 0:
+    if len(df) == 0 or 'test_case' not in df or 'language' not in df:
         return
 
-    plt.figure(figsize=(12, 8))
+    test_cases = sorted(df['test_case'].unique())
+    colors = _language_colors(df['language'].unique())
+    n_cases = len(test_cases)
 
-    # 按测试用例分组，比较不同语言的性能
-    test_cases = df['test_case'].unique()
-    x = range(len(test_cases))
-    width = 0.8 / len(df['language'].unique())
+    fig, axes = plt.subplots(1, n_cases, figsize=(7 * n_cases, 9), squeeze=False)
+    axes = axes[0]
 
-    for i, language in enumerate(df['language'].unique()):
-        lang_data = df[df['language'] == language]
-        values = [lang_data[lang_data['test_case'] == tc]['average_time'].values[0]
-                  if len(lang_data[lang_data['test_case'] == tc]) > 0 else 0
-                  for tc in test_cases]
-        plt.bar([pos + i * width for pos in x], values, width, label=language)
+    for ax, test_case in zip(axes, test_cases):
+        test_data = df[df['test_case'] == test_case]
+        test_data = test_data[test_data['average_time'] > 0]
+        test_data = test_data.sort_values('average_time', ascending=False)
 
-    plt.xticks([pos + width for pos in x], test_cases, rotation=45, ha='right')
-    plt.ylabel('执行时间(秒)')
-    plt.title('各语言性能对比')
-    plt.legend()
+        ax.barh(test_data['language'], test_data['average_time'],
+                color=[colors[lang] for lang in test_data['language']])
+        ax.set_xscale('log')
+        ax.set_xlabel('平均执行时间(秒, 对数刻度)')
+        ax.set_title(f'{test_case} 性能对比', fontsize=14)
+        ax.grid(True, axis='x', alpha=0.3)
+
+        for y, (_, row) in enumerate(test_data.iterrows()):
+            ax.text(row['average_time'] * 1.15, y, format_time(row['average_time']),
+                    va='center', fontsize=9)
+
     plt.tight_layout()
     Path('report').mkdir(exist_ok=True)
-    plt.savefig('report/comparison.png')
+    plt.savefig('report/comparison.png', dpi=150)
     plt.close()
 
 def generate_trend_chart(df):
-    if len(df) == 0:
+    if len(df) == 0 or 'test_case' not in df or 'language' not in df:
         return
 
     plt.figure(figsize=(12, 8))
+    colors = _language_colors(df['language'].unique())
 
-    # 按语言分组，展示在不同测试用例上的性能趋势
-    for language in df['language'].unique():
+    for language in sorted(df['language'].unique()):
         lang_data = df[df['language'] == language]
-        sorted_data = lang_data.sort_values('test_case')
-        plt.plot(sorted_data['test_case'], sorted_data['average_time'],
-                marker='o', label=language)
+        valid = lang_data[lang_data['average_time'] > 0].sort_values('test_case')
+        if len(valid) == 0:
+            continue
+        plt.plot(valid['test_case'], valid['average_time'],
+                 marker='o', label=language, color=colors[language], linewidth=1.5)
 
-    plt.xticks(rotation=45, ha='right')
-    plt.ylabel('执行时间(秒)')
-    plt.title('性能趋势图')
-    plt.legend()
-    plt.grid(True, alpha=0.3)
+    plt.yscale('log')
+    plt.xlabel('测试用例')
+    plt.ylabel('平均执行时间(秒, 对数刻度)')
+    plt.title('各语言性能趋势')
+    plt.legend(ncol=3, fontsize=9)
+    plt.grid(True, alpha=0.3, which='both')
     plt.tight_layout()
     Path('report').mkdir(exist_ok=True)
-    plt.savefig('report/trend.png')
+    plt.savefig('report/trend.png', dpi=150)
     plt.close()
 
 def generate_results_table(df, failed_df):

@@ -7,6 +7,7 @@ import argparse
 import yaml
 import json
 import signal
+import shlex
 from pathlib import Path
 
 
@@ -146,7 +147,7 @@ class BenchmarkRunner:
         try:
             # 确定运行命令
             if output_file and lang_config.get('compile_command'):
-                # 编译型语言：运行可执行文件
+                # 编译型语言：按 run_command 执行（例如 java -jar /path/app.jar）
                 run_cmd = lang_config['run_command'].format(
                     output=str(output_file),
                     source_dir=str(test_case_path),
@@ -172,22 +173,11 @@ class BenchmarkRunner:
                     stderr=subprocess.PIPE,
                     text=True
                 )
-            # 对于其他编译型语言：直接运行可执行文件
-            elif output_file:
-                process = subprocess.Popen(
-                    [str(output_file)],
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    text=True
-                )
             else:
-                # 解释型语言：解析命令和参数，不用 shell=True
-                parts = run_cmd.split(' ', 1)
-                cmd = parts[0]
-                args = parts[1] if len(parts) > 1 else ''
-
+                # 解析命令和参数（支持引号），不用 shell=True
+                parts = shlex.split(run_cmd)
                 process = subprocess.Popen(
-                    [cmd, args],
+                    parts,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     text=True
