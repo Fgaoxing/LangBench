@@ -43,7 +43,6 @@ def generate_report(results_dir):
     # 如果没有成功结果，跳过图表生成
     if len(df) > 0:
         generate_boxplot_chart(df)
-        generate_trend_chart(df)
 
     # 生成Markdown表格
     generate_results_table(df, failed_df)
@@ -116,32 +115,6 @@ def generate_boxplot_chart(df):
     plt.savefig('report/boxplot.svg', format='svg')
     plt.close()
 
-def generate_trend_chart(df):
-    if len(df) == 0 or 'test_case' not in df or 'language' not in df:
-        return
-
-    plt.figure(figsize=(12, 8))
-    colors = _language_colors(df['language'].unique())
-
-    for language in sorted(df['language'].unique()):
-        lang_data = df[df['language'] == language]
-        valid = lang_data[lang_data['average_time'] > 0].sort_values('test_case')
-        if len(valid) == 0:
-            continue
-        plt.plot(valid['test_case'], valid['average_time'],
-                 marker='o', label=language, color=colors[language], linewidth=1.5)
-
-    plt.yscale('log')
-    plt.xlabel('测试用例')
-    plt.ylabel('平均执行时间(秒, 对数刻度)')
-    plt.title('各语言性能趋势')
-    plt.legend(ncol=3, fontsize=9)
-    plt.grid(True, alpha=0.3, which='both')
-    plt.tight_layout()
-    Path('report').mkdir(exist_ok=True)
-    plt.savefig('report/trend.svg', format='svg')
-    plt.close()
-
 def generate_results_table(df, failed_df):
     # 生成Markdown格式的结果表格
     Path('report').mkdir(exist_ok=True)
@@ -154,8 +127,6 @@ def generate_results_table(df, failed_df):
             f.write('## 性能图表\n\n')
             f.write('### 执行时间箱线图\n\n')
             f.write('![执行时间箱线图](report/boxplot.svg)\n\n')
-            f.write('### 性能趋势\n\n')
-            f.write('![性能趋势](report/trend.svg)\n\n')
 
         # 按测试用例分组（仅成功的数据）
         if len(df) > 0 and 'test_case' in df.columns:
